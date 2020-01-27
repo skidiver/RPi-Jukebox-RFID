@@ -1,0 +1,14 @@
+[Unit]  
+Description=Phoniebox Ready LED
+After=network.target iptables.service firewalld.service rfid-reader.service
+
+[Service]
+User=pi
+Group=pi
+Type=oneshot
+RemainAfterExit=true
+WorkingDirectory=/home/pi/RPi-Jukebox-RFID
+ExecStart=/home/pi/RPi-Jukebox-RFID/scripts/ready_led.sh
+
+[Install]
+WantedBy=multi-user.target

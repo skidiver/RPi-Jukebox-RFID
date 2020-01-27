@@ -645,6 +645,13 @@ sudo systemctl enable phoniebox-rfid-reader
 sudo systemctl enable phoniebox-startup-sound
 sudo systemctl enable phoniebox-gpio-buttons
 
+# 3. skidiver-custom
+sudo systemctl disable phoniebox-ready-led
+sudo rm /etc/systemd/system/phoniebox-ready-led
+sudo cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/phoniebox-ready-led.service.stretch-default.sample /etc/systemd/system/phoniebox-ready-led.service
+sudo chown root:root /etc/systemd/system/phoniebox-ready-led.service
+sudo systemctl enable phoniebox-ready-led
+
 # copy mp3s for startup and shutdown sound to the right folder
 cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/startupsound.mp3.sample /home/pi/RPi-Jukebox-RFID/shared/startupsound.mp3
 cp /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/shutdownsound.mp3.sample /home/pi/RPi-Jukebox-RFID/shared/shutdownsound.mp3
