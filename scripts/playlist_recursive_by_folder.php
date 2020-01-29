@@ -3,10 +3,10 @@
 /*
 * Examples below
 * Note: folder in '' to support whitespaces in folder names
-* ./playlist_recursive_by_folder.php folder="ZZZ-SubMaster"
-* ./playlist_recursive_by_folder.php folder="ZZZ-SubMaster" list=recursive
-* ./playlist_recursive_by_folder.php folder="ZZZ SubMaster Whitespaces" list=recursive
-* ./playlist_recursive_by_folder.php folder="ZZZ-SubMaster/fff-threeSubs" list=recursive
+* ./playlist_recursive_by_folder.php --folder "ZZZ-SubMaster"
+* ./playlist_recursive_by_folder.php --folder "ZZZ-SubMaster" --list recursive
+* ./playlist_recursive_by_folder.php --folder ZZZ SubMaster Whitespaces" --list recursive
+* ./playlist_recursive_by_folder.php --folder "ZZZ-SubMaster/fff-threeSubs" --list recursive
 *
 * ./rfid_trigger_play.sh -d="ZZZ-SubMaster" -v=recursive
 * ./rfid_trigger_play.sh -d="ZZZ-SubMaster/fff-threeSubs" -v=recursive
@@ -66,6 +66,10 @@ if(file_exists($Audio_Folders_Path_Playlist)) {
     * sorting now to make sure we have aaaaallllll the folder in a neat list
     */
     usort($folders, 'strnatcasecmp');
+} else {
+    if($debug == "true") {
+        print "\$Audio_Folders_Path_Playlist '".$Audio_Folders_Path_Playlist."' does not exist\n";
+    }
 }
 
 // some debugging info
@@ -73,6 +77,7 @@ if($debug == "true") {
     print "\$_GET:";
     print_r($_GET);
     print "\$Audio_Folders_Path: ".$Audio_Folders_Path."\n";
+    print "\$Audio_Folders_Path_Playlist: ".$Audio_Folders_Path_Playlist."\n";
     print "\$folders:";
     print_r($folders);
 }

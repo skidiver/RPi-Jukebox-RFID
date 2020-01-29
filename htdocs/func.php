@@ -204,6 +204,15 @@ function arrayPregDiff($a, $p) {
 	return $a;
 }
 
+function arrayPregKeep(array $array, string $regex) {
+	foreach ($array as $key => $value) {
+		if (!preg_match($regex, $value)) {
+			unset($array[$key]);
+		}
+	}
+	return $array;
+}
+
 function startsWith($haystack, $needle) {
      $length = strlen($needle);
      return (substr($haystack, 0, $length) === $needle);
@@ -551,5 +560,44 @@ function printPlaylistHtml($files)
             </ol>";
 }
 
+function printErr($message)
+{
+    fwrite(STDERR, $message . "\n");
+}
 
+function fail(int $code, string $message)
+{
+    printErr($message);
+    exit($code);
+}
+
+function debug(string $key, $value = null)
+{
+    if ($GLOBALS["debug"]) {
+        if (isset($value)) {
+            $out = $value;
+        } else {
+            if (isset($GLOBALS[$key])) {
+                $out = $GLOBALS[$key];
+            } else {
+                $out = '<unset>';
+            }
+    
+        }
+        print($key." = '".print_r($out, true). "'\n");
+    }
+}
+
+function debugAll(array $vars = NULL)
+{
+    if (!isset($vars)) {
+        $vars = $GLOBALS;
+    }
+    foreach ($GLOBALS as $key => $value) {
+        if ($key == 'GLOBALS') {
+            continue;
+        }
+        debug($key, $value);
+    }
+}
 ?>
