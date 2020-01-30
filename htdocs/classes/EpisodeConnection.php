@@ -18,12 +18,8 @@ class EpisodeConnection {
             throw new UnexpectedValueException("'" . $this->getFolder()->getPathname() . "' is not executeable");
         }
 
-
-
         $this->next = $this->findConf(EpisodeConnection::NAME_NEXT);
         $this->previous = $this->findConf(EpisodeConnection::NAME_PREV);
-        debug('next', $this->next);
-        debug('previous', $this->previous);
     }
 
     public static function fromPath(string $path) : EpisodeConnection {
@@ -56,12 +52,36 @@ class EpisodeConnection {
     }
 
     /**
+     * Checks if the (base) folder is somehow connected to another folder
+     */
+    public function isConnected() : bool {
+        return isset($this->next) || isset($this->previous);
+    }
+
+    /**
+     * Returns the folder that is connected via NAME_NEXT
+     */
+    public function getNext() : ?SplFileInfo {
+        return $this->next;
+    }
+
+    /**
+     * Returns the folder that is connected via NAME_PREV
+     */
+    public function getPrevious() : ?SplFileInfo {
+        return $this->previous;
+    }
+
+    /**
      * Returns the path string
      */
     public function __toString() {
         return $this->getFolder()->getPathname();
     }
 
+    /**
+     * Tries to find a configuration by name inside the (base) folder
+     */
     protected function findConf(string $name) : ?SplFileInfo {
         $confFileName = $this->getFolder()->getPathname().'/'.$name;
         if (!file_exists($confFileName)) {
