@@ -473,20 +473,22 @@ sudo wget -q -O /etc/apt/sources.list.d/mopidy.list https://apt.mopidy.com/buste
 
 sudo apt-get update
 sudo apt-get --yes upgrade
-sudo apt-get install --yes libspotify-dev python3 git
-sudo apt-get --yes --allow-downgrades --allow-remove-essential --allow-change-held-packages install apt-transport-https samba samba-common-bin gcc raspberrypi-kernel-headers lighttpd php7.3-common php7.3-cgi php7.3 php7.3-fpm at mpd mpc mpg123 ffmpeg python-mutagen python3-gpiozero resolvconf spi-tools python-spidev python3-spidev python-dev python3
+sudo apt-get install --yes libspotify-dev git
+sudo apt-get --yes --allow-downgrades --allow-remove-essential --allow-change-held-packages install apt-transport-https samba samba-common-bin gcc raspberrypi-kernel-headers lighttpd php7.3-common php7.3-cgi php7.3 php7.3-fpm at mpd mpc mpg123 ffmpeg resolvconf spi-tools
 sudo apt-get --yes install git
-sudo apt-get --yes install python-pip python3-pip
+
+# prepare python2 and python3
+sudo apt-get --yes --allow-downgrades --allow-remove-essential --allow-change-held-packages install python-dev python-pip python-mutagen python-gpiozero python-spidev
+sudo apt-get --yes --allow-downgrades --allow-remove-essential --allow-change-held-packages install python3 python3-dev python3-pip python3-mutagen python3-gpiozero python3-spidev
 
 # use python3.7 as default
 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.7 1
 
-
 # Install required spotify packages
 if [ $SPOTinstall == "YES" ]
 then
-	sudo apt-get install --yes mopidy=2.3.1-1
-	sudo python2.7 -m pip install Mopidy==2.3.*
+	sudo apt-get install --yes mopidy=2.2.2-1
+	sudo python2.7 -m pip install Mopidy==2.2.*
 
 	sudo apt-get --yes --allow-downgrades --allow-remove-essential --allow-change-held-packages install libspotify12 python-cffi python-ply python-pycparser python-spotify
 	sudo rm -rf /usr/lib/python2.7/dist-packages/mopidy_spotify*
@@ -503,7 +505,7 @@ then
 	 sudo python2.7 -m pip install pylast==2.4.0
 	# not sure tornado still needs to be downgraded now that Mopidy 3 is not installed and tornado seems to be 5.1
  	sudo python2.7 -m pip install 'tornado==5.0'
-	sudo python2.7 -m pip install Mopidy-Iris
+	sudo python2.7 -m pip install Mopidy-Iris==3.43.0
 fi
 
 # Get github code
@@ -511,8 +513,8 @@ cd /home/pi/
 
 # Must be changed to the correct branch!!!
 # Change to master when merging develop with master!!!
-git clone https://github.com/MiczFlor/RPi-Jukebox-RFID.git 
-#--branch develop
+# this needs to be replaced on develop
+git clone --branch master https://github.com/MiczFlor/RPi-Jukebox-RFID.git
 cd /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/
 
 # The following lines are just for development.
@@ -526,19 +528,19 @@ cd /home/pi/RPi-Jukebox-RFID/misc/sampleconfigs/
 cd /home/pi/RPi-Jukebox-RFID
 
 # Install more required packages
-sudo python2.7 -m pip install -r requirements.txt
+sudo python3 -m pip install -r requirements.txt
 
 # actually, for the time being most of the requirements are run here.
 # the requirements.txt version seems to throw errors. Help if you can to fix this:
 
-sudo python2.7 -m pip install "evdev == 0.7.0"
-sudo python2.7 -m pip install --upgrade youtube_dl
-sudo python2.7 -m pip install git+git://github.com/lthiery/SPI-Py.git#egg=spi-py
-sudo python2.7 -m pip install pyserial
+sudo python3 -m pip install "evdev == 0.7.0"
+sudo python3 -m pip install --upgrade youtube_dl
+sudo python3 -m pip install git+git://github.com/lthiery/SPI-Py.git#egg=spi-py
+sudo python3 -m pip install pyserial
 # spidev is currently installed via apt-get
 #sudo pip install spidev
-sudo python2.7 -m pip install RPi.GPIO
-sudo python2.7 -m pip install pi-rc522
+sudo python3 -m pip install RPi.GPIO
+sudo python3 -m pip install pi-rc522
 
 # Switch of WiFi power management
 sudo iwconfig wlan0 power off
@@ -870,7 +872,7 @@ case "$response" in
         ;;
     *)
         cd /home/pi/RPi-Jukebox-RFID/scripts/
-        python2 RegisterDevice.py
+        python3 RegisterDevice.py
         sudo chown pi:www-data /home/pi/RPi-Jukebox-RFID/scripts/deviceName.txt
         sudo chmod 644 /home/pi/RPi-Jukebox-RFID/scripts/deviceName.txt
         ;;
