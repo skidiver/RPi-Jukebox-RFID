@@ -468,7 +468,10 @@ then
 	wget -q -O - https://apt.mopidy.com/mopidy.gpg | sudo apt-key add -
 	sudo wget -q -O /etc/apt/sources.list.d/mopidy.list https://apt.mopidy.com/stretch.list
 	sudo apt-get update
-	sudo apt-get --yes --force-yes install mopidy
+	
+	sudo apt-get install --yes mopidy=2.2.2-1
+	sudo python2.7 -m pip install Mopidy==2.2.*
+	
 	sudo apt-get --yes --force-yes install libspotify12 python-cffi python-ply python-pycparser python-spotify
 	sudo rm -rf /usr/lib/python2.7/dist-packages/mopidy_spotify*
 	sudo rm -rf /usr/lib/python2.7/dist-packages/Mopidy_Spotify-*
@@ -481,12 +484,15 @@ then
 	# should be removed, if Mopidy-Iris can be installed normally
 	# pylast >= 3.0.0 removed the python2 support
 	sudo pip install pylast==2.4.0
-	sudo pip install Mopidy-Iris
+	# not sure tornado still needs to be downgraded now that Mopidy 3 is not installed and tornado seems to be 5.1
+ 	sudo python2.7 -m pip install 'tornado==5.0'
+	sudo python2.7 -m pip install Mopidy-Iris==3.43.0
 fi
 
 # Get github code
 cd /home/pi/
-git clone https://github.com/MiczFlor/RPi-Jukebox-RFID.git
+# this needs to be replaced on develop
+git clone --branch master https://github.com/MiczFlor/RPi-Jukebox-RFID.git
 # the following three lines are needed as long as this is not the master branch:
 cd RPi-Jukebox-RFID
 git fetch
@@ -812,7 +818,7 @@ case "$response" in
         ;;
     *)
         cd /home/pi/RPi-Jukebox-RFID/scripts/
-        python2 RegisterDevice.py
+        python3 RegisterDevice.py
         sudo chown pi:www-data /home/pi/RPi-Jukebox-RFID/scripts/deviceName.txt
         sudo chmod 644 /home/pi/RPi-Jukebox-RFID/scripts/deviceName.txt
         ;;
