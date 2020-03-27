@@ -148,6 +148,9 @@ handleSpecialCards () {
             sudo $PATHDATA/playout_controls.sh -c=playerprev
             #/usr/bin/sudo /home/pi/RPi-Jukebox-RFID/scripts/playout_controls.sh -c=playerprev
             ;;
+
+        # !!! CONNECTED FOLDERS
+
         $CMDREWIND)
             # play the first track in playlist
             sudo $PATHDATA/playout_controls.sh -c=playerrewind
@@ -235,6 +238,36 @@ handleSpecialCards () {
             ;;
         $RECORDPLAYBACKLATEST)
             $PATHDATA/playout_controls.sh -c=recordplaybacklatest
+            ;;
+        *)
+            # We checked if the card was a special command, seems it wasn't.
+            # Now we expect it to be a trigger for one or more audio file(s).
+            return 1
+    esac
+    return 0
+}
+
+###########################################################
+# handleConnectedFolder (string cardId) : : void
+###########################################################
+# return code: 0 - handled
+#              1 - NOT handled
+#
+# handles special cards in case of a connected folder: next.conf | previous.conf
+# outputs the next/prev
+#
+handleConnectedFolder () {
+
+    local CARDID = $1
+
+    case $CARDID in 
+        $CMDNEXTCONNECTED)
+            # toggles shuffle mode  (random on/off)
+            $PATHDATA/playout_controls.sh -c=playershuffle
+            ;;
+        $CMDPREVCONNECTED)
+            # limit volume to 30%
+            $PATHDATA/playout_controls.sh -c=setmaxvolume -v=30
             ;;
         *)
             # We checked if the card was a special command, seems it wasn't.
@@ -283,213 +316,3 @@ resolveFolder () {
     return $RETURN_CODE
 }
 
-###########################################################
-# handleConnectedFolder (string cardId) : int{0,1}
-###########################################################
-# handles special cards in case of a connected folder: next.conf | previous.conf
-# outputs the next/prev
-#
-handleConnectedFolder () {
-
-    local CARDID = $1
-
-    case $CARDID in 
-        $CMDNEXTCONNECTED)
-            # toggles shuffle mode  (random on/off)
-            $PATHDATA/playout_controls.sh -c=playershuffle
-            ;;
-        $CMDPREVCONNECTED)
-            # limit volume to 30%
-            $PATHDATA/playout_controls.sh -c=setmaxvolume -v=30
-            ;;
-        $CMDMAXVOL50)
-            # limit volume to 50%
-            $PATHDATA/playout_controls.sh -c=setmaxvolume -v=50
-            ;;
-        $CMDMAXVOL75)
-            # limit volume to 75%
-            $PATHDATA/playout_controls.sh -c=setmaxvolume -v=75
-            ;;
-        $CMDMAXVOL80)
-            # limit volume to 80%
-            $PATHDATA/playout_controls.sh -c=setmaxvolume -v=80
-            ;;
-        $CMDMAXVOL85)
-            # limit volume to 85%
-            $PATHDATA/playout_controls.sh -c=setmaxvolume -v=85
-            ;;
-        $CMDMAXVOL90)
-            # limit volume to 90%
-            $PATHDATA/playout_controls.sh -c=setmaxvolume -v=90
-            ;;
-        $CMDMAXVOL95)
-            # limit volume to 95%
-            $PATHDATA/playout_controls.sh -c=setmaxvolume -v=95
-            ;;
-        $CMDMAXVOL100)
-            # limit volume to 100%
-            $PATHDATA/playout_controls.sh -c=setmaxvolume -v=100
-            ;;
-        $CMDMUTE)
-            # amixer sset 'PCM' 0%
-            $PATHDATA/playout_controls.sh -c=mute
-            ;;
-        $CMDVOL30)
-            # amixer sset 'PCM' 30%
-            $PATHDATA/playout_controls.sh -c=setvolume -v=30
-            ;;
-        $CMDVOL50)
-            # amixer sset 'PCM' 50%
-            $PATHDATA/playout_controls.sh -c=setvolume -v=50
-            ;;
-        $CMDVOL75)
-            # amixer sset 'PCM' 75%
-            $PATHDATA/playout_controls.sh -c=setvolume -v=75
-            ;;
-        $CMDVOL80)
-            # amixer sset 'PCM' 80%
-            $PATHDATA/playout_controls.sh -c=setvolume -v=80
-            ;;
-        $CMDVOL85)
-            # amixer sset 'PCM' 85%
-            $PATHDATA/playout_controls.sh -c=setvolume -v=85
-            ;;
-        $CMDVOL90)
-            # amixer sset 'PCM' 90%
-            $PATHDATA/playout_controls.sh -c=setvolume -v=90
-            ;;
-        $CMDVOL95)
-            # amixer sset 'PCM' 95%
-            $PATHDATA/playout_controls.sh -c=setvolume -v=95
-            ;;
-        $CMDVOL100)
-            # amixer sset 'PCM' 100%
-            $PATHDATA/playout_controls.sh -c=setvolume -v=100
-            ;;
-        $CMDVOLUP)
-            # increase volume by x% set in Audio_Volume_Change_Step
-            $PATHDATA/playout_controls.sh -c=volumeup   
-            ;;
-        $CMDVOLDOWN)
-            # decrease volume by x% set in Audio_Volume_Change_Step
-            $PATHDATA/playout_controls.sh -c=volumedown
-            ;;
-        $CMDSTOP)
-            # kill all running audio players
-            $PATHDATA/playout_controls.sh -c=playerstop
-            ;;
-        $CMDSHUTDOWN)
-            # shutdown the RPi nicely
-            # sudo halt
-            $PATHDATA/playout_controls.sh -c=shutdown
-            ;;
-        $CMDREBOOT)
-            # shutdown the RPi nicely
-            # sudo reboot
-            $PATHDATA/playout_controls.sh -c=reboot
-            ;;
-        $CMDNEXT)
-            # play next track in playlist
-            $PATHDATA/playout_controls.sh -c=playernext
-            ;;
-        $CMDPREV)
-            # play previous track in playlist
-            # echo "prev" | nc.openbsd -w 1 localhost 4212
-            sudo $PATHDATA/playout_controls.sh -c=playerprev
-            #/usr/bin/sudo /home/pi/RPi-Jukebox-RFID/scripts/playout_controls.sh -c=playerprev
-            ;;
-        $CMDREWIND)
-            # play the first track in playlist
-            sudo $PATHDATA/playout_controls.sh -c=playerrewind
-            ;;
-        $CMDSEEKFORW)
-            # jump 15 seconds ahead
-            $PATHDATA/playout_controls.sh -c=playerseek -v=+15
-            ;;
-        $CMDSEEKBACK)
-            # jump 15 seconds back
-            $PATHDATA/playout_controls.sh -c=playerseek -v=-15
-            ;;
-        $CMDPAUSE)
-            # pause current track
-            # echo "pause" | nc.openbsd -w 1 localhost 4212
-            $PATHDATA/playout_controls.sh -c=playerpause
-            ;;
-        $CMDPLAY)
-            # play / resume current track
-            # echo "play" | nc.openbsd -w 1 localhost 4212
-            $PATHDATA/playout_controls.sh -c=playerplay
-            ;;
-        $STOPAFTER5)
-            # stop player after -v minutes
-            $PATHDATA/playout_controls.sh -c=playerstopafter -v=5
-            ;;
-        $STOPAFTER15)
-            # stop player after -v minutes
-            $PATHDATA/playout_controls.sh -c=playerstopafter -v=15
-            ;;
-        $STOPAFTER30)
-            # stop player after -v minutes
-            $PATHDATA/playout_controls.sh -c=playerstopafter -v=30
-            ;;
-        $STOPAFTER60)
-            # stop player after -v minutes
-            $PATHDATA/playout_controls.sh -c=playerstopafter -v=60
-            ;;
-        $SHUTDOWNAFTER5)
-            # shutdown after -v minutes
-            $PATHDATA/playout_controls.sh -c=shutdownafter -v=5
-            ;;
-        $SHUTDOWNAFTER15)
-            # shutdown after -v minutes
-            $PATHDATA/playout_controls.sh -c=shutdownafter -v=15
-            ;;
-        $SHUTDOWNAFTER30)
-            # shutdown after -v minutes
-            $PATHDATA/playout_controls.sh -c=shutdownafter -v=30
-            ;;
-        $SHUTDOWNAFTER60)
-            # shutdown after -v minutes
-            $PATHDATA/playout_controls.sh -c=shutdownafter -v=60
-            ;;
-        $ENABLEWIFI)
-            $PATHDATA/playout_controls.sh -c=enablewifi
-            ;;
-        $DISABLEWIFI)
-            $PATHDATA/playout_controls.sh -c=disablewifi
-            ;;
-        $CMDPLAYCUSTOMPLS)
-            $PATHDATA/playout_controls.sh -c=playlistaddplay -v="PhonieCustomPLS" -d="PhonieCustomPLS"
-            ;;
-        $STARTRECORD600)
-            #start recorder for -v seconds
-            $PATHDATA/playout_controls.sh -c=recordstart -v=600			             
-            ;;
-        $STOPRECORD)
-            $PATHDATA/playout_controls.sh -c=recordstop
-            ;;
-        $RECORDSTART600)
-            #start recorder for -v seconds
-            $PATHDATA/playout_controls.sh -c=recordstart -v=600			             
-            ;;
-        $RECORDSTART60)
-            #start recorder for -v seconds
-            $PATHDATA/playout_controls.sh -c=recordstart -v=60			             
-            ;;
-        $RECORDSTART10)
-            #start recorder for -v seconds
-            $PATHDATA/playout_controls.sh -c=recordstart -v=10			             
-            ;;
-        $RECORDSTOP)
-            $PATHDATA/playout_controls.sh -c=recordstop
-            ;;
-        $RECORDPLAYBACKLATEST)
-            $PATHDATA/playout_controls.sh -c=recordplaybacklatest
-            ;;
-        *)
-            # We checked if the card was a special command, seems it wasn't.
-            # Now we expect it to be a trigger for one or more audio file(s).
-            return 1
-    esac
-    return 0
-}

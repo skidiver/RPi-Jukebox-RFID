@@ -13,7 +13,9 @@ class Settings {
     private $edition;
     private $version;
  
-    public function __construct() {       
+    private static $instance = null;
+
+    private function __construct() {       
         $this->baseFolder = new SplFileInfo(__DIR__.'/../../'.Settings::NAME_SETTINGS.'/');
         $base = $this->getBaseFolder();
         Checks::requireFolder($base);
@@ -25,6 +27,17 @@ class Settings {
         $this->version = $this->readSetting(Settings::NAME_VERSION);
     }
 
+    /**
+     * gets the instance via lazy initialization (created on first usage)
+     */
+    public static function getInstance(): Settings
+    {
+        if (static::$instance === null) {
+            static::$instance = new static();
+        }
+
+        return static::$instance;
+    }
     /**
      * Returns the base folder
      */

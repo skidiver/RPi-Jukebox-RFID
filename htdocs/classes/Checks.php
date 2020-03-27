@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 class Checks {
 
-    public static function requireFile(SplFileInfo $file, bool $writable = NULL) {
+    public static function requireFile(SplFileInfo $file, bool $writable = NULL) : ?SplFileInfo {
         if (!isset($writable)) {
             $writable = false;
         }
@@ -19,9 +19,10 @@ class Checks {
                 throw new FileAccessException("'" . $file->getPathname() . "' is not readable");
             }
         }
+        return $file;
     }
 
-    public static function requireFolder(SplFileInfo $folder, bool $writable = NULL) {
+    public static function requireFolder(SplFileInfo $folder, bool $writable = NULL) : ?SplFileInfo {
         if (!isset($writable)) {
             $writable = false;
         }
@@ -37,6 +38,7 @@ class Checks {
                 throw new FileAccessException("'" . $folder->getPathname() . "' is not executable");
             }
         }
+        return $folder;
     }
 }
 ?>

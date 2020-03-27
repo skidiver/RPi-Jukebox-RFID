@@ -1,36 +1,29 @@
 #!/usr/bin/php
 <?php
 /*
+* This script determines the name/path of a connected folder.
+* Parameters:
+* --folder=<folderName> : name (not full path) of the folder to look into (required)
+* --direction=next|previous : look for the next/previous connected folder (optional, default=next)
+* --fqn : add this option if the fully qualified path of the connected folder has to be written to stdout (optional, default is short folder name)
+*
 * Examples below
 * Note: folder in '' to support whitespaces in folder names
 * ./get_connected_folder.php --folder="ZZZ-SubMaster" --direction="next"
 * ./get_connected_folder.php --folder="ZZZ-SubMaster" --direction="previous"
+* ./get_connected_folder.php --folder="ZZZ-SubMaster" --direction="next" --fqn
+* ./get_connected_folder.php --folder="ZZZ-SubMaster" --fqn
 */
 
-/*
-* debug? Conf file line:
-* DEBUG_playlist_recursive_by_folder_php="TRUE"
-echo getcwd();
-$debugLoggingConf = parse_ini_file(getcwd()."/../settings/debugLogging.conf");
-if($debugLoggingConf['DEBUG_playlist_recursive_by_folder_php'] == "TRUE") {
-    file_put_contents(getcwd()."../logs/debug.log", "\n# DEBUG_playlist_recursive_by_folder_php # " . __FILE__ , FILE_APPEND | LOCK_EX);
-    file_put_contents(getcwd()."/../logs/debug.log", "\n  # \$_SERVER['REQUEST_METHOD']: " . $_SERVER['REQUEST_METHOD'] , FILE_APPEND | LOCK_EX);
-}
-*/
 declare(strict_types=1);
-$debug = false;
 
 // includes
-include_once(__DIR__.'/../htdocs/func.php');
 include_once(__DIR__.'/../htdocs/inc.loadClassesByName.php');
-
-// read settings
-$settings = new Settings();
 
 /*
 * Get params from command line
 */
-$params = getopt("", array("folder:", "direction::"));
+$params = getopt("", array("folder:", "direction::", "fqn::"));
 if (!array_key_exists('folder', $params)) {
     printUsage("Parameter 'folder' is missing!");
 }
@@ -43,7 +36,13 @@ if (array_key_exists('direction', $params)) {
     $direction = 'next'; // next is default
 }
 
-$epCon = EpisodeConnection::fromFolderName($settings, $folderName);
+if (array_key_exists('fqn', $params)) {
+    $fqn = true;
+} else {
+    $fqn = false;
+}
+
+$epCon = EpisodeConnection::fromFolderName($folderName);
 if($direction !== 'previous') { // next is default
     $connection = $epCon->getNext();
 } else {
@@ -54,7 +53,11 @@ if (!isset($connection)) {
     exit(1);
 }
 
-print($connection->getPathname());
+if ($fqn) {
+    print($connection->getRealPath());
+} else {
+    print($connection->getFilename());
+}
 exit(0);
 
 function printUsage(string $msg) {

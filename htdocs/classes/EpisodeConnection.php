@@ -5,11 +5,13 @@ class EpisodeConnection {
 
     public const NAME_NEXT = 'next.conf';
     public const NAME_PREV = 'previous.conf';
+    private $settings;
     private $folder;
     private $next;
     private $previous;
 
-    public function __construct(SplFileInfo $folder) {       
+    public function __construct(SplFileInfo $folder) {
+        $this->settings = Settings::getInstance();
         $this->folder = $folder;
         if (!$this->getFolder()->isDir()) {
             throw new UnexpectedValueException("'" . $this->getFolder()->getPathname() . "' does not denote a directory");
@@ -18,16 +20,16 @@ class EpisodeConnection {
             throw new UnexpectedValueException("'" . $this->getFolder()->getPathname() . "' is not executeable");
         }
 
-        $this->next = $this->findConf(EpisodeConnection::NAME_NEXT);
-        $this->previous = $this->findConf(EpisodeConnection::NAME_PREV);
+        $this->next =  static::findConf($this->getFolder(), self::NAME_NEXT);
+        $this->previous = static::findConf($this->getFolder(), self::NAME_PREV);
     }
 
     public static function fromPath(string $path) : EpisodeConnection {
         return EpisodeConnection::fromFileInfo(new SplFileInfo($path));
     }
 
-    public static function fromFolderName(Settings $settings, string $folderName) : EpisodeConnection {
-        return EpisodeConnection::fromPath($settings->getAudioFoldersBase()->getPathname().'/'.$folderName);
+    public static function fromFolderName(string $folderName) : EpisodeConnection {
+        return EpisodeConnection::fromFileInfo(static::resolveFolder($folderName));
     }
 
     /**
@@ -79,18 +81,26 @@ class EpisodeConnection {
         return $this->getFolder()->getPathname();
     }
 
+    protected static function resolveFolder(string $folderName) : SplFileInfo {
+        $settings = Settings::getInstance();
+        return new SplFileInfo($settings->getAudioFoldersBase()->getPathname().'/'.$folderName);
+    }
+
     /**
      * Tries to find a configuration by name inside the (base) folder
      */
-    protected function findConf(string $name) : ?SplFileInfo {
-        $confFileName = $this->getFolder()->getPathname().'/'.$name;
+    protected static function findConf(SplFileInfo $ownFolder, string $name) : ?SplFileInfo {
+        $confFileName = $ownFolder->getPathname().'/'.$name;
         if (!file_exists($confFileName)) {
             return null;
         }
-        Checks::requireFile(new SplFileInfo($confFileName));
-        $refFolder = new SplFileInfo(trim(file_get_contents($confFileName)));
-        Checks::requireFolder($refFolder, true);
-        return $refFolder;
+        $configuredValue = trim(file_get_contents($confFileName));
+        $refFolder = static::resolveFolder($configuredValue);
+        try {
+            return Checks::requireFolder($refFolder);
+        } catch(FileAccessException $e) {
+            return null;
+        }
     }
 }
 
