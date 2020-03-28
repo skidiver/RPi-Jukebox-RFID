@@ -7,6 +7,11 @@
 * --direction=next|previous : look for the next/previous connected folder (optional, default=next)
 * --fqn : add this option if the fully qualified path of the connected folder has to be written to stdout (optional, default is short folder name)
 *
+* Return codes:
+* 0 - everything fine
+* 1 - requested connection does not exist
+* 255 - command line args invalid
+*
 * Examples below
 * Note: folder in '' to support whitespaces in folder names
 * ./get_connected_folder.php --folder="ZZZ-SubMaster" --direction="next"

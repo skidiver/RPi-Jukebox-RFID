@@ -5,13 +5,11 @@ class EpisodeConnection {
 
     public const NAME_NEXT = 'next.conf';
     public const NAME_PREV = 'previous.conf';
-    private $settings;
     private $folder;
     private $next;
     private $previous;
 
     public function __construct(SplFileInfo $folder) {
-        $this->settings = Settings::getInstance();
         $this->folder = $folder;
         if (!$this->getFolder()->isDir()) {
             throw new UnexpectedValueException("'" . $this->getFolder()->getPathname() . "' does not denote a directory");
@@ -68,6 +66,16 @@ class EpisodeConnection {
     }
 
     /**
+     * Sets the folder that is connected via NAME_NEXT
+     */
+    public function setNext(?SplFileInfo $next) {
+        if (isset($next)) {
+            Checks::requireFolder($next);
+        }
+        $this->next = $next;
+    }
+
+    /**
      * Returns the folder that is connected via NAME_PREV
      */
     public function getPrevious() : ?SplFileInfo {
@@ -75,10 +83,28 @@ class EpisodeConnection {
     }
 
     /**
+     * Sets the folder that is connected via NAME_PREV
+     */
+    public function setPrevious(?SplFileInfo $previous) {
+        if (isset($previous)) {
+            Checks::requireFolder($previous);
+        }
+        $this->previous = $previous;
+    }
+
+    /**
+     * Stores the currently set values
+     */
+    public function store() {
+        static::storeConf($this->getFolder(), self::NAME_NEXT, $this->getNext());
+        static::storeConf($this->getFolder(), self::NAME_PREV, $this->getPrevious());
+    }
+
+    /**
      * Returns the path string
      */
     public function __toString() {
-        return $this->getFolder()->getPathname();
+        return sprintf("%s (next->%s, previous->%s)" ,$this->getFolder()->getPathname(), $this->getNext(), $this->getPrevious());
     }
 
     protected static function resolveFolder(string $folderName) : SplFileInfo {
@@ -101,6 +127,26 @@ class EpisodeConnection {
         } catch(FileAccessException $e) {
             return null;
         }
+    }
+
+    /**
+     * Stores a configuration (NAME_NEXT, NAME_PREV) inside ownFolder
+     */
+    protected static function storeConf(SplFileInfo $ownFolder, string $name, ?SplFileInfo $value) : ?SplFileInfo {
+        $confFileName = $ownFolder->getPathname().'/'.$name;
+        if (!isset($value)) {
+            // remove conf-file if existing
+            if (file_exists($confFileName)) {
+                unlink($confFileName);
+            }
+            return null;
+        }
+
+        $result = file_put_contents($confFileName, $value->getRealPath());
+        if (!$result) {
+            throw new FileAccessException(sprintf("Unable to write '%s' to file '%s'", $value->getRealPath(), $confFileName));
+        }
+        return new SplFileInfo($confFileName);
     }
 }
 
